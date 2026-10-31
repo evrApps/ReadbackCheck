@@ -123,13 +123,13 @@ In the app, `Contents/Resources/Licenses` holds the licenses of every third-part
 
 ## Releases
 
-Each release is a tag of this repository, for example `v1.0.0`, and comes as a disk image, for example `ReadbackCheck-1.0.0.dmg`. To install it, open the dmg and drag Readback Check to the Applications folder. The release notes give the SHA-256 of the dmg, the commit it was built from and a link to the source of that tag.
+Each release is a tag of this repository, for example `v1.0.0`, and comes as a zip file, for example `ReadbackCheck-1.0.0.zip`, with the app signed and notarized inside. To install it, open the zip and move Readback Check to the Applications folder. The release notes give the SHA-256 of the zip, the commit it was built from and a link to the source of that tag.
 
 ### Is this the official build?
 
-Download the dmg only from the Releases page of this repository. Before you open it, check it against the SHA-256 in the release notes:
+Download the zip only from the Releases page of this repository. Before you open it, check it against the SHA-256 in the release notes:
 
-    shasum -a 256 ReadbackCheck-1.0.0.dmg
+    shasum -a 256 ReadbackCheck-1.0.0.zip
 
 The two values must be the same. If they differ, the file is not the official release of Readback Check: delete it.
 
