@@ -1,0 +1,7 @@
+evr_copyhash — Copyright (C) 2026 Antonio Marogna — EVRApps. All rights reserved.
+
+evr_copyhash is proprietary software. It is not covered by the GNU GPL that applies to Readback Check.
+You may use it only as the component included in an official, unmodified release of Readback Check distributed by EVRApps, and only through Readback Check itself.
+You may not extract it from the application, call it from other software, or distribute it separately from an official release of Readback Check.
+You may not reverse engineer, decompile or disassemble it, except to the extent that applicable law expressly permits this despite this limitation.
+It is provided "as is", without warranty of any kind.

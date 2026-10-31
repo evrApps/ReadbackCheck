@@ -1,0 +1,5 @@
+evr_copyhash
+__pycache__/
+.DS_Store
+.build/
+build/

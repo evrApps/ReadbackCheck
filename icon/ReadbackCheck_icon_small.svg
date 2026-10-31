@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Simplified drawing for 16 and 32 px: no slot, thicker arc and tip, bigger LED. -->
+  <defs>
+    <linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#262f44"/><stop offset="1" stop-color="#171d2a"/></linearGradient>
+    <linearGradient id="dr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a4acbc"/><stop offset="1" stop-color="#7f889a"/></linearGradient>
+    <linearGradient id="arc" gradientUnits="userSpaceOnUse" x1="330" y1="0" x2="790" y2="0"><stop offset="0" stop-color="#bf5af2"/><stop offset=".4" stop-color="#bf5af2"/><stop offset=".62" stop-color="#30d158"/><stop offset="1" stop-color="#30d158"/></linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#b)"/>
+  <rect x="222" y="590" width="580" height="250" rx="60" fill="url(#dr)"/>
+  <circle cx="680" cy="715" r="58" fill="#30d158"/>
+  <path d="M 340 545 L 340 430 A 170 170 0 0 1 680 430 L 680 440" stroke="url(#arc)" stroke-width="104" stroke-linecap="round" fill="none"/>
+  <path d="M 680 585 L 545 420 L 815 420 Z" fill="#30d158" stroke="#30d158" stroke-width="30" stroke-linejoin="round"/>
+</svg>
