@@ -54,7 +54,7 @@ enum History {
     static let changed = Notification.Name("ReadbackCheckPastTestsChanged")
 
     /// The report the window selects the next time it loads: the result's
-    /// Show Report opens Past Tests on its own test.
+    /// Past Tests button opens the window on its own test.
     @MainActor static var focus: String?
 
     @MainActor

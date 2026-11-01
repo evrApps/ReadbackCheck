@@ -52,7 +52,7 @@ Readback Check refuses to run on the system disk, and when the copy starts befor
 
 ### Reports
 
-Every finished test leaves a report, named by date, app and result, for example `2026-10-31 07.33 – YourOffloadApp 1.0 – not read back.txt`, in `~/Library/Application Support/Readback Check/Reports`. **Window ▸ Past Tests** (⇧⌘R) lists them, newest first, with the app, the destination and the result, and shows the selected report. **File ▸ Show Reports in Finder** opens the folder, and **Show Report** in the result opens Past Tests on that test, where **Show in Finder** reveals its file.
+Every finished test leaves a report, named by date, app and result, for example `2026-10-31 07.33 – YourOffloadApp 1.0 – not read back.txt`, in `~/Library/Application Support/Readback Check/Reports`. **Window ▸ Past Tests** (⇧⌘R) lists them, newest first, with the app, the destination and the result, and shows the selected report. **File ▸ Show Reports in Finder** opens the folder, and **Past Tests** in the result opens the same window on that test, where **Show in Finder** reveals its file.
 
 ### Which app did the copy
 

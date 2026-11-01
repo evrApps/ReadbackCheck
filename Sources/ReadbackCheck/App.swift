@@ -200,7 +200,7 @@ struct BottomBar: View {
                 Button("Cancel") { session.cancel() }.disabled(session.cancelling || session.outcome != nil)
             case .result:
                 if let o = session.outcome, !o.reportPath.isEmpty {
-                    Button("Show Report") { History.show(report: o.reportPath, open: openWindow) }
+                    Button("Past Tests") { History.show(report: o.reportPath, open: openWindow) }
                 }
                 Button("Test Again") { session.reset(); setup.recheck() }
                     .keyboardShortcut(.defaultAction)
