@@ -32,6 +32,12 @@ struct ReadbackCheckApp: App {
             CommandGroup(replacing: .appInfo) {
                 Button("About Readback Check") { About.show() }
             }
+            CommandGroup(replacing: .help) {
+                // The README's walk through a test, on the repository's page.
+                Button("Readback Check Help") {
+                    NSWorkspace.shared.open(URL(string: "https://github.com/evrApps/ReadbackCheck#how-a-test-goes")!)
+                }
+            }
             ReportCommands()
         }
 
