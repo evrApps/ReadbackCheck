@@ -42,7 +42,7 @@ The result is about your app on that disk, with the settings used for that test.
 <p align="center">
   <img src="docs/images/step5-result.png" width="720" alt="Readback Check result: the copy was read back from the destination disk">
 </p>
-<p align="center"><sub>Step 5, the result of the same test: the offload app was identified during the copy, and the instrument check passed.</sub></p>
+<p align="center"><sub>Step 5, the result of the same test: the offload app was identified during the copy, the verification setting typed at step 1 is recorded, and the instrument check passed.</sub></p>
 
 Readback Check refuses to run on the system disk, and when the copy starts before step 3 shows the folders. While a Time Machine backup is running, it refuses a source or destination that the backup includes or writes to, and any network destination; disks left out of Time Machine, as external disks are by default, can be tested during a backup.
 
