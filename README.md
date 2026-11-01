@@ -64,6 +64,62 @@ The app seen copying goes in the result and in the report. If no app was chosen 
 
 Before and after the copy, Readback Check copies the test files twice on the destination with two reference copiers whose answer is known, then reads those copies back. With reference A almost nothing should reach the disk (about 0 x the data); with reference B all of it should (about 1 x). If B is not seen, the disk counters can't see re-reads on that destination and the test stops. If A reaches the disk, the cache doesn't hold the data and a read back can't be attributed to your app. When both checks pass, the result says "Instrument check: passed"; when one fails, the result is "Can't be determined", with the reason. The values of A and B are in the full report.
 
+## Questions
+
+### My result says "Does not read back". Is my app bad? Are my files at risk?
+
+Not necessarily. During this test the destination disk read nothing back. If your app verified the copy, it compared the source with what it sent to the disk, without reading what the disk stored. That still catches some problems, but not one that happens while the data is being stored: a cable, an enclosure, a card reader, the disk itself.
+
+Many apps offer more than one verification mode. Check whether yours has one that reads the copy back from the disk, and run the test again with it.
+
+### Why "Can't be determined"?
+
+On some destinations the test can't tell your app's choice from how the disk works. The result always gives the reason. The common ones:
+
+- **Network shares.** On many shares the Mac keeps nothing in its cache, so every read crosses the network whatever the app chooses.
+- **Not enough free memory.** If the Mac can't keep the test data in memory, a read from the disk could just be the system's. Quit some apps and run the test again.
+- **The disk counters can't see the reads.** On some disks or drivers the reads that reach the disk aren't visible. Try another destination disk.
+
+### What is the instrument check?
+
+The two reference copies described in [How the destination is checked](#how-the-destination-is-checked). Before the copy, they make sure the destination can be measured at all. After it, they validate the result. When both pass, the result says "Instrument check: passed".
+
+### Will it touch my footage?
+
+It writes a folder of random test files, 128–256 MB in all, on the source, and a test folder on the destination, and removes both at the end. It refuses to run on the system disk. Still, use a spare card or disk as the source, not one holding footage you still need.
+
+### Why does it eject and mount the source again?
+
+So that, when your app starts copying, the source is read from the card and not from memory. It needs no administrator password.
+
+### How long does a test take?
+
+A few minutes, most of it your app's copy.
+
+### What do I need?
+
+A source (a card or an external disk) and a destination disk. They must be two different physical disks, and neither can be the system disk.
+
+### Does it send any data?
+
+No. Readback Check sends nothing over the network, and reports stay on your Mac (see [Reports](#reports)). The only link it opens is **Help**, which leads to this page.
+
+### Can I share my results?
+
+Yes: each test leaves a plain-text report. Please share it with its context. A result describes one app, on one disk, with one set of settings, and another disk or another setting can give a different result.
+
+### Why is one part not open source?
+
+The reference copies are made by a small helper, `evr_copyhash`, which is proprietary. What it must produce is documented (about 0 x and about 1 x), and every report shows the values it actually got, so you can see whether the instrument behaved as expected on your disk. Everything that measures and judges, the app and the engine, is open source.
+
+### I make an offload app and my result surprised me.
+
+Open an issue with the report, and we'll go through what the counters showed together.
+
+### Where do I report a problem?
+
+Open an issue with the report of the test and your macOS version: see [CONTRIBUTING.md](CONTRIBUTING.md). Reports are welcome for bugs, for results that look wrong, and for disks, card readers or network shares on which the test can't run.
+
 ## Building
 
 You need Xcode 15 or later.
