@@ -417,14 +417,18 @@ def guided_size(ram, requested=None):
     return total if total >= GUIDED_MIN else None
 
 
-def guided_name(parent, suffix="", prefix="ReadbackCheck_Test"):
-    """A fresh <prefix>_<YYYYMMDD-hhmm> name under parent; seconds are added
-    only if two tests start in the same minute."""
+def guided_name(parents, suffix="", prefix="ReadbackCheck_Test"):
+    """A <prefix>_<YYYYMMDD-hhmmss> name free under every parent (source and
+    destination). Always with seconds: a test started in the same minute as the
+    one before, whose folders are gone by then, must not get the same name, or
+    an offload app can take the new test folder for one it has already seen."""
     now = datetime.datetime.now()
-    name = f"{prefix}_{now:%Y%m%d-%H%M}"
-    if os.path.exists(os.path.join(parent, name + suffix)):
-        name = f"{prefix}_{now:%Y%m%d-%H%M%S}"
-    return name
+    base = f"{prefix}_{now:%Y%m%d-%H%M%S}"
+    for n in range(1, 100):
+        name = base if n == 1 else f"{base}-{n}"
+        if not any(os.path.exists(os.path.join(p, name + suffix)) for p in parents):
+            return name
+    return f"{base}-{os.getpid()}"
 
 
 def make_test_files(folder, total):
@@ -544,13 +548,16 @@ def verdict_words(copy_ok, rc, calib):
 
 def report_path(folder, when, app, verdict):
     """'2026-10-31 07.33 – YourOffloadApp 1.0 – not read back.txt': sorted by name,
-    the reports are in date order. Seconds are added only on a clash."""
+    the reports are in date order. Seconds are added only on a clash, then a
+    number: a report is never overwritten."""
     app = re.sub(r"[/:\\]+", "-", app or "app not given").strip() or "app not given"
-    for stamp in (f"{when:%Y-%m-%d %H.%M}", f"{when:%Y-%m-%d %H.%M.%S}"):
+    stamps = [f"{when:%Y-%m-%d %H.%M}", f"{when:%Y-%m-%d %H.%M.%S}"]
+    stamps += [f"{stamps[1]}-{n}" for n in range(2, 100)]
+    for stamp in stamps:
         path = os.path.join(folder, f"{stamp} – {app} – {verdict}.txt")
         if not os.path.exists(path):
             return path
-    return path
+    return os.path.join(folder, f"{stamps[1]}-{os.getpid()} – {app} – {verdict}.txt")
 
 
 def can_remount(c):
@@ -705,7 +712,7 @@ def calibrate(obs, files, run_dir, size, noise, on_phase=None):
     return ok, res
 
 
-def destination_verdict(copy_ok, calib, size_ok, r_dst):
+def destination_verdict(copy_ok, calib, size_ok, r_dst, network=False, calib_pre=None):
     """(text, exit code) for the destination question.
 
     The two calibration references fail in different ways that mean different
@@ -715,6 +722,10 @@ def destination_verdict(copy_ok, calib, size_ok, r_dst):
     but the cache does not hold the data here: an application readback from disk
     can no longer be attributed to a choice. A zero, however, survives that — if
     the application read nothing from the disk, a leaky cache does not change it.
+    On a network destination A crosses the network whatever the data size, so
+    there the verdict gives that reason instead of advising less data. A share's
+    client cache can also hold A at one check and not at the other (SMB 1: 1.05 x
+    before the job, 0.00 x after it), so there A must pass both checks.
 
     When calibration ran, it replaces the RAM-size estimate: free + inactive
     pages overstates how much freshly written data stays cached, because the
@@ -730,8 +741,17 @@ def destination_verdict(copy_ok, calib, size_ok, r_dst):
             return (f"INSTRUMENT NOT VALIDATED — reference B, whose readback must reach "
                     f"the disk, was seen for only {cb:.2f} x: on this destination the "
                     "counter does not measure re-reads."), 3
-        attributable = ca <= NOT_READ
+        pre = calib_pre["A"] if network and isinstance(calib_pre, dict) else 0.0
+        attributable = ca <= NOT_READ and pre <= NOT_READ
         if not attributable and r_dst > NOT_READ:
+            if network:
+                when = ("" if ca > NOT_READ and pre > NOT_READ
+                        else " after the copy" if ca > NOT_READ else " before the copy")
+                return (f"INCONCLUSIVE — on this network destination the Mac's cache does not "
+                        f"hold the copy reliably: even reference A, whose readback should come "
+                        f"from RAM, was read back over the network for {max(ca, pre):.0%}{when}. "
+                        "Every read can cross the network whatever the app chooses, so a read "
+                        "back can't be attributed to the app."), 2
             return (f"INCONCLUSIVE — the cache does not hold the data: even reference A, "
                     f"whose readback should come from RAM, was read back from the disk for "
                     f"{ca:.0%}. A re-read from the disk by the app therefore cannot be "
@@ -1166,7 +1186,7 @@ def run(args, ui, test_size=None):
         size = guided_size(reusable_ram(), test_size)
         if size is None:
             refuse(GUIDED_RAM_REFUSAL)
-        name = guided_name(dest_parent, ".noindex")
+        name = guided_name([dest_parent, os.path.realpath(args.source)], ".noindex")
         # .noindex on both sides: Spotlight indexing the card would add reads to the source.
         source = os.path.join(os.path.realpath(args.source), name + ".noindex")
         files = []
@@ -1176,7 +1196,7 @@ def run(args, ui, test_size=None):
         if not files:
             refuse("no files in the source")
         size = sum(os.path.getsize(f) for f in files)
-        name = guided_name(dest_parent, ".noindex", "ReadbackCheck_probe")
+        name = guided_name([dest_parent], ".noindex", "ReadbackCheck_probe")
     run_dir = os.path.join(dest_parent, name + ".noindex")   # Spotlight skips *.noindex
     os.mkdir(run_dir)                  # not makedirs: the parent is checked above
     ui.temp.append(run_dir)            # removed if the interface aborts
@@ -1444,7 +1464,8 @@ def run(args, ui, test_size=None):
         notes.append("calibration skipped (--no-calibrate): the instrument was not "
                      "validated on this destination")
 
-    if dst["kind"] == "network" and isinstance(calib, dict) and calib["A"] > NOT_READ:
+    if dst["kind"] == "network" and isinstance(calib, dict) and max(
+            calib["A"], calib_pre["A"] if isinstance(calib_pre, dict) else 0.0) > NOT_READ:
         notes.append("network destination with no client cache: even reference A was read "
                      "back over the network, so here every verification read crosses the "
                      "network, whether the app chooses it or not. Repeating with less data "
@@ -1452,7 +1473,8 @@ def run(args, ui, test_size=None):
                      "attributed, a zero can")
 
     out("-" * 72)
-    verdict, rc = destination_verdict(copy_ok, calib, size_ok, r_dst)
+    verdict, rc = destination_verdict(copy_ok, calib, size_ok, r_dst,
+                                      network=dst["kind"] == "network", calib_pre=calib_pre)
     out(f"  RESULT: {verdict}")
 
     # ---- the source row: physical reads only

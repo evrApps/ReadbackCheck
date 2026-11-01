@@ -140,7 +140,7 @@ The destination check uses `evr_copyhash`, a reference copier that is proprietar
 
 prompts at the terminal. `--check` prints the checks as JSON; `--steps` is the protocol the app uses (JSON lines out, one command per line in).
 
-Without `--guided` the engine measures the copy of a folder of files you already have, into a new `ReadbackCheck_probe_<YYYYMMDD-hhmm>.noindex` folder that it removes at the end. With `--run-cmd` a command does the copy in place of an app:
+Without `--guided` the engine measures the copy of a folder of files you already have, into a new `ReadbackCheck_probe_<YYYYMMDD-hhmmss>.noindex` folder that it removes at the end. With `--run-cmd` a command does the copy in place of an app:
 
     python3 -I engine/verify_offload_app.py SOURCE_FOLDER DEST_FOLDER --app cp --verify-mode none \
         --extras-off --no-remount --run-cmd 'cp {src}/* {dst}/'
