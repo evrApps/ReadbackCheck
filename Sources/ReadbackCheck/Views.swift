@@ -521,7 +521,7 @@ struct FinalView: View {
         VStack(alignment: .leading, spacing: 0) {
             Lead("Almost done.")
             TaskTable(rows: [
-                TaskRow(title: "Counting the copy", sub: "All \(n) files must be in the test folder", state: session.fin[0]),
+                TaskRow(title: "Counting the copy", sub: "Background activity is measured again, and all \(n) files must be in the test folder", state: session.fin[0]),
                 TaskRow(title: "Checking the destination again",
                         sub: session.fin[1] == .skipped ? "Not needed: the copy is not in the test folder"
                                                         : "Conditions can change during a copy",

@@ -1362,6 +1362,20 @@ def run(args, ui, test_size=None):
     conflict = guided and backup_conflict(src, dst)
     if conflict:
         refuse(conflict, *ui.temp)
+    # The background again, after the job, and the lower rate of the two per
+    # counter. A steady background shows in both windows. A one-off burst
+    # shows in one: an offload app scanning the card it saw remounted read
+    # 15 MB in the window before the job, and 110 MB were subtracted from a
+    # source the app had read exactly twice.
+    ui.phase("noise_after", size * runs)
+    post_a = obs.snap()
+    time.sleep(5)
+    post_b = obs.snap()
+    noise_after = {k: v / (post_b["t"] - post_a["t"])
+                   for k, v in Observer.delta(post_a, post_b).items() if k != "t"}
+    ui.phase("idle")
+    noise_before = noise
+    noise = {k: min(noise_before[k], noise_after[k]) for k in noise_before}
     d = Observer.delta(a, b)
     secs = d.pop("t")
     adj = {k: max(0, d[k] - noise[k] * secs) for k in d}
@@ -1384,6 +1398,9 @@ def run(args, ui, test_size=None):
     out("-" * 72)
     out(f"  window         : {secs:.1f} s   background subtracted: "
         f"{fmt_mb(noise['dst_r'] * secs)} dest. / {fmt_mb(noise['src_r'] * secs)} source")
+    out(f"  background     : before {noise_before['dst_r'] / MB:.1f} MB/s dest. / "
+        f"{noise_before['src_r'] / MB:.1f} MB/s source, after {noise_after['dst_r'] / MB:.1f} / "
+        f"{noise_after['src_r'] / MB:.1f} MB/s: the lower one is subtracted")
     out(f"  copy found     : {fmt_mb(found)} of {fmt_mb(size)}  (by {matched_by})"
         + ("" if copy_ok else "   <- INCOMPLETE"))
     if dst["kind"] != "network":
