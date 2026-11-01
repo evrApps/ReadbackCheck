@@ -13,6 +13,7 @@ import Foundation
 ///        Finished when the command ends. A failed reset of the source is
 ///        continued without after 5 s. The same path as in real use.
 ///   -selfTestApp PATH       the offload app of step 1
+///   -selfTestVerify TEXT    the verification setting of step 1
 ///   -selfTestCancel STEP    click Cancel 2 s into step 2, 3 or 4 instead
 ///   -selfTestQuit YES       quit 5 s after the result, writing DIR/selftest.json
 ///                           when -snapshotDir is given
@@ -24,6 +25,7 @@ import Foundation
 ///   -engineScript PATH      run this script instead of the engine (development)
 enum SelfTest {
     static let defaults = UserDefaults.standard
+    static var active: Bool { defaults.string(forKey: "selfTestCmd") != nil }
 
     @MainActor
     static func install(setup: Setup, session: Session) {
@@ -32,6 +34,7 @@ enum SelfTest {
             if let s = defaults.string(forKey: "selfTestSource") { setup.source = s }
             if let d = defaults.string(forKey: "selfTestDest") { setup.dest = d }
             if let a = defaults.string(forKey: "selfTestApp") { setup.appPath = a }
+            if let v = defaults.string(forKey: "selfTestVerify") { setup.verifySetting = v }
             var prepared = false, jobRunning = false, quitting = false
             var failedSince: Date?, stepSince = (Step.choose, Date())
             let cancelAt = Step(rawValue: defaults.integer(forKey: "selfTestCancel"))

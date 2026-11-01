@@ -27,7 +27,7 @@ Readback Check comes from EVRApps' experience with offload software, and from an
 
 ## How a test goes
 
-1. **Choose the disks.** A source (a spare card or disk) and a destination disk. Optionally, your offload app, so that its name and version go in the report. The disks are checked before anything is written.
+1. **Choose the disks.** A source (a spare card or disk) and a destination disk. Optionally, your offload app, so that its name and version go in the report, and how its verification is set (for example "xxHash64, source and destination"), recorded in the report as you type it. The disks are checked before anything is written.
 2. **Preparing the test.** Readback Check writes 5–8 random test files on the source, sized for this Mac's free memory, checks that the destination can be measured, ejects and mounts the source again, and measures background activity.
 3. **Copy with your offload app.** Copy the test folder to the folder shown, with verification on. The disks are watched from the moment the folders are shown: set up the copy, start it, and click **Finished** when your app says the copy is verified. Meanwhile Readback Check shows which app has files open in the two test folders (see below).
 4. **Final check.** The copy is counted, the destination is checked again, and the test files are removed from both disks.
@@ -92,7 +92,7 @@ The app can run a whole test without anyone at the keyboard, with a shell comman
     .build/debug/ReadbackCheck -selfTestSource "/Volumes/CARD" -selfTestDest "/Volumes/DISK" \
         -selfTestCmd 'cp {src}/* {dst}/' -selfTestQuit YES -snapshotDir /tmp/shots
 
-`{src}` is the test data folder and `{dst}` the test folder. `-snapshotDir` saves the window every 2 seconds, plus `selftest.json` with the result when `-selfTestQuit` is set. See `Sources/ReadbackCheck/SelfTest.swift`.
+`{src}` is the test data folder and `{dst}` the test folder. `-selfTestApp PATH` and `-selfTestVerify TEXT` fill in the offload app and its verification setting. `-snapshotDir` saves the window every 2 seconds, plus `selftest.json` with the result when `-selfTestQuit` is set. See `Sources/ReadbackCheck/SelfTest.swift`.
 
 ## Layout
 

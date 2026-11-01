@@ -174,7 +174,7 @@ struct BottomBar: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Text("EVRApps · open source").font(.callout).foregroundStyle(.tertiary)
+            Text("EVRApps").font(.callout).foregroundStyle(.tertiary)
             Spacer()
             switch session.step {
             case .choose:

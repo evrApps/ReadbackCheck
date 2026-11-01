@@ -95,6 +95,9 @@ final class Setup {
     private(set) var destInfo: DiskInfo?
 
     var appPath = UserDefaults.standard.string(forKey: "appPath") ?? ""
+    /// How the offload app's verification was set, in the user's words: free
+    /// text, recorded in the report and never checked.
+    var verifySetting = UserDefaults.standard.string(forKey: "verifySetting") ?? ""
 
     var preflight: Preflight?
     var checking = false
@@ -113,7 +116,22 @@ final class Setup {
     func choose(dest path: String) { dest = path; UserDefaults.standard.set(path, forKey: "dest") }
     // Saved only when chosen here: the self-test sets the fields directly and
     // must not leave its choices in the user's settings.
-    func choose(app path: String) { appPath = path; UserDefaults.standard.set(path, forKey: "appPath") }
+    func choose(app path: String) {
+        // The setting belongs to the app it was typed for.
+        if !appPath.isEmpty && path != appPath { choose(verify: "") }
+        appPath = path
+        UserDefaults.standard.set(path, forKey: "appPath")
+    }
+    func choose(verify text: String) {
+        verifySetting = text
+        // The field writes through here as soon as it has focus, the self-test's text too.
+        if !SelfTest.active { UserDefaults.standard.set(text, forKey: "verifySetting") }
+    }
+
+    var verifyText: String? {
+        let t = verifySetting.trimmingCharacters(in: .whitespacesAndNewlines)
+        return t.isEmpty ? nil : t
+    }
 
     var appBundle: Bundle? { appPath.isEmpty ? nil : Bundle(path: appPath) }
 
@@ -190,6 +208,7 @@ final class Setup {
         // Step 3 asks for previews, proxies, thumbnails and reports to be off.
         var a = [source, dest, "--guided", "--steps", "--report-dir", EnginePaths.reportDir]
         if !appPath.isEmpty { a += ["--app", appName, "--app-path", appPath] }
+        if let v = verifyText { a += ["--verify-mode", v] }
         return a
     }
 }
@@ -242,6 +261,7 @@ struct Measured {
     var app: String?
     /// The bundle chosen in step 1, to compare with what was seen.
     var appPath: String?
+    var verify: String?
     var date = Date()
 }
 
@@ -314,7 +334,8 @@ final class Session {
         reset()
         measured = Measured(source: setup.sourceInfo, dest: setup.destInfo,
                             app: setup.appPath.isEmpty ? nil : "\(setup.appName) \(setup.appVersion ?? "")",
-                            appPath: setup.appPath.isEmpty ? nil : setup.appPath)
+                            appPath: setup.appPath.isEmpty ? nil : setup.appPath,
+                            verify: setup.verifyText)
         expectedSize = setup.preflight?.size ?? 0
         step = .prepare
         setTask(prep: 0, .running)

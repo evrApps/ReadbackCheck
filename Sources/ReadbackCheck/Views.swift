@@ -238,6 +238,19 @@ struct ChooseView: View {
                         }
                         .controlSize(.small)
                     }
+                    GridRow {
+                        label("Verification:")
+                        TextField("Optional: how your app's verification is set, for example \"xxHash64, source and destination\"",
+                                  text: Binding(get: { setup.verifySetting }, set: { setup.choose(verify: $0) }))
+                            .textFieldStyle(.roundedBorder)
+                            .gridCellColumns(2)
+                    }
+                    GridRow {
+                        Color.clear.gridCellUnsizedAxes([.horizontal, .vertical])
+                        Text("Recorded in the report as you type it. The test doesn't check it.")
+                            .font(.callout).foregroundStyle(.tertiary)
+                            .gridCellColumns(2)
+                    }
                 }
             }
 
@@ -570,6 +583,7 @@ struct ResultView: View {
                         scope("Source:", m.source?.short ?? "—")
                         scope("Offload app:", appText)
                         if let s = seenText { scope("Seen copying:", s) }
+                        if let v = m.verify { scope("Verification:", v) }
                         scope("Test data:", testData)
                         scope("Date:", dateText(m.date))
                     }
