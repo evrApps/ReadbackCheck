@@ -557,11 +557,34 @@ def can_remount(c):
     return c["kind"] in ("local", "ram") and c["mount"] not in ("/", "/System/Volumes/Data")
 
 
+def settle(disk, quiet=2.0, limit=15.0):
+    """Wait until disk reads nothing for quiet seconds, or limit seconds pass.
+
+    Right after mounting, APFS reads the volume's own metadata: 39, 22 and
+    6 MB in the first three seconds on a USB SSD, then nothing. The background
+    window that follows would take that burst for steady activity and subtract
+    it over the whole job (667 MB from a 256 MB source read). ExFAT cards
+    showed no burst."""
+    def reads():
+        return counters_for([disk], 2).get(disk, (None, None))[0]
+    last, still, t0 = reads(), 0.0, time.monotonic()
+    if last is None:
+        return
+    while still < quiet and time.monotonic() - t0 < limit:
+        time.sleep(0.5)
+        now = reads()
+        if now is None:
+            return
+        still = still + 0.5 if now - last < 64 * 1024 else 0.0
+        last = now
+
+
 def remount(c, why=None):
     """Make the source cold by unmounting and remounting its volume.
 
     Measured on ExFAT and APFS to drop that volume's cached pages, without
-    root. Returns True only if both steps succeeded and the path is back.
+    root. Returns True only if both steps succeeded and the path is back,
+    and the disk has settled.
     If why is a dict, a failure fills it with "code" (not_remountable,
     unmount_failed, mount_failed) and "detail" (diskutil's own words).
     """
@@ -576,6 +599,7 @@ def remount(c, why=None):
     m = subprocess.run(["diskutil", "mount", c["device"]], capture_output=True, text=True)
     for _ in range(40):
         if os.path.exists(c["path"]):
+            settle(c["disk"])
             return True
         time.sleep(0.25)
     why.update(code="mount_failed", detail=(m.stderr or m.stdout).strip())
