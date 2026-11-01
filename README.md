@@ -2,9 +2,7 @@
 
 by EVRApps
 
-A free, open-source macOS app that answers one question about your offload app: when it verifies a copy, does it read the copy back from the destination disk, or does it only check the data it has just written?
-
-Readback Check never looks inside your offload app. It watches how many bytes each disk reads and writes while your app copies a folder of test files, and compares them with the size of the data.
+A free, open-source macOS app that shows whether your offload app's verification reads the copy back from the destination disk.
 
 Requires macOS 14 or later, on Apple silicon or Intel.
 
@@ -13,17 +11,23 @@ Requires macOS 14 or later, on Apple silicon or Intel.
 </p>
 <p align="center"><sub>Step 3, while a sample offload app, YourOffloadApp, copies a card to an NVMe disk. Destination read reaches 1.0 x: the copy was read back from the disk.</sub></p>
 
-## Why it exists
+## Why it matters
 
-Professional offload apps say they verify every copy by comparing the destination with the source. What they rarely say is where the destination data comes from during that comparison.
+Most of what software promises shows itself. An export at the wrong frame rate, a transcode with the wrong colours, a file that won't open: you see the problem, usually at once, and you deal with it.
 
-When an app writes a file, macOS keeps the data it just wrote in memory, in its file cache. If the app then reads the copy back in the usual way, macOS can answer from that cache without going to the disk at all. The comparison passes, but it compared the source with what was sent to the disk, not with what the disk stored. A problem that happens while the data is being stored (a cable, an enclosure, a card reader, the disk itself) would not be caught. To check what is really on the disk, an app has to ask for it explicitly, past the cache.
+Verification is different. Its whole job is to catch what you can't see, so when it works, nothing happens. And when it checks less than it seems to, nothing happens either: the same progress bar, the same "verified", the same quiet confidence. The difference shows only on the day a clip turns out to be damaged, when the card it came from has already been formatted.
 
-From the outside the two kinds of verification look the same: the same progress bar, the same "verified" mark, often the same name in the settings. Readback Check is an independent way to tell them apart. It doesn't rely on what an app or its maker says: it measures what the disks actually do during the copy, and it works the same way with any app.
+There are two ways to verify a copy. Right after writing, macOS keeps the data it has just written in memory. An app that reads the copy back in the usual way can be answered from that memory: the comparison passes, but it compares the source with what was sent to the disk, not with what the disk stored. A problem on the way to the medium (a cable, an enclosure, a card reader, the disk itself) would go unnoticed. To know what is really on the disk, an app has to ask for it explicitly, past the cache. One way is faster, the other checks more. What matters is knowing which one you have.
+
+Readback Check lets you see it, on your own disks and with your own settings. It never looks inside your app and doesn't rely on what the app or its maker says. It measures how many bytes each disk reads and writes while your app copies a folder of test files, and compares them with the size of the data. It works the same way with any app.
 
 ## Where it comes from
 
-Readback Check comes from EVRApps' experience with offload software, and from an in-house tool EVRApps used to test offloads on real disks and card readers. Readback Check is that tool turned into an app anyone can run, with a guided test and a plain result. It is open source so that anyone can check how it measures.
+Readback Check grew out of a tool EVRApps used in-house to test offloads on real disks and card readers.
+
+EVRApps also makes offload software. That is exactly why Readback Check is open source: anyone can read how it measures, run it with any app, ours included, and check the result for themselves.
+
+It is not a ranking and it doesn't grade apps. A result describes one app, on one disk, with one set of settings, and that is all it claims.
 
 ## How a test goes
 
