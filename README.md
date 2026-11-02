@@ -179,7 +179,7 @@ The icon and the other brand artwork in `icon/` are not covered by the GPL: all 
 
 `evr_copyhash` is proprietary, licensed separately and not part of this repository (see [Building](#building)).
 
-In the app, `Contents/Resources/Licenses` holds the licenses of every third-party component: Python, python-build-standalone, xxHash, and in `Python-libraries/` the libraries built into Python (OpenSSL, SQLite, libffi, xz, bzip2, mpdecimal, libuuid, expat). In this repository, `licenses/` holds the ones for xxHash and `evr_copyhash`; the build takes the others from the Python release it ships.
+In the app, `Contents/Resources/Licenses` holds the licenses of every third-party component: Python, python-build-standalone, xxHash, and in `Python-libraries/` the libraries built into Python (OpenSSL, SQLite, libffi, xz, bzip2, zlib, mpdecimal, libuuid, expat). In this repository, `licenses/` holds the ones for xxHash and `evr_copyhash`; the build takes the others from the Python release it ships.
 
 ## Releases
 
